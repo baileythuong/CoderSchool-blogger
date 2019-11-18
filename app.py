@@ -47,6 +47,7 @@ class Blog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     view_count = db.Column(db.Integer, default=0)
+    # comments = db.relationship('Comment', backref = "comment", lazy = True)
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
