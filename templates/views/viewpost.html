@@ -2,76 +2,136 @@
 
 <div class="container pt-5">
   <div class="pt-5">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
-        {% if messages %} {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible mt-2" role="alert">
-          <button
-            type="button"
-            class="close"
-            data-dismiss="alert"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <!-- <strong>Title</strong> -->
-          {{ message }}
-        </div>
-        {% endfor %} {% endif %} {% endwith %}
-          
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+    {% if messages %} {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible mt-2" role="alert">
+      <button
+        type="button"
+        class="close"
+        data-dismiss="alert"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <!-- <strong>Title</strong> -->
+      {{ message }}
+    </div>
+    {% endfor %} {% endif %} {% endwith %}
+
     <div class="container card mb-4">
       <div class="card-body">
-    <a class="display-4">{{ post.title }}</a>
-    <p class="lead"><i class="fas fa-user"></i> {{ post.author }}</p>
-    <small class="text-muted">{{moment(post.created).fromNow()}}</small>
-    <p class="card-text">{{ post.content }}</p>
-    {% if current_user.is_authenticated %}
-    {% if post.author == current_user.username %}
-    <div class="container d-flex justify-content-end pb-3">
-      </form>
-      <form action="{{url_for('crud_entry', id=post.id, action='edit')}}" method="POST">
-        <button type="submit" class="btn btn-sm btn-warning mx-1">Edit</button>
-      </form>
-      <form action="{{url_for('crud_entry', id=post.id, action='delete')}}" method="POST">
-        <button type="submit" class="btn btn-sm btn-danger mx-1">Delete</button>
-      </form>
-    </div>
-    {% endif %}
-    <hr>
-    <form class="pt-5" action="{{url_for('crud_entry', id=post.id, action='postcomment')}}" method="POST">
-        <div class="row">
-          <div class="col">
-            <input type="text" autocomplete="off" name="commentcontent" class="form-control" placeholder="Write a comment">
-          </div>
+        <a class="display-4">{{ post.title }}</a>
+        <p class="lead"><i class="fas fa-user"></i> {{ post.user.username }}</p>
+        <p class="text-muted">
+          Total views: {{post.view_count}} <i class="far fa-eye"></i>
+        </p>
+        <small class="text-muted">{{moment(post.created).fromNow()}}</small>
+        <p class="card-text">{{ post.content }}</p>
+
+        <div
+          class="container d-flex justify-content-between pb-3 custom-button"
+        >
           <div>
-            <button class="btn btn-primary">Submit</button>
+            {% if not post in current_user.likes_posts %}
+            <form
+              method="POST"
+              action="{{url_for('crud_entry', id=post.id, action='like')}}"
+            >
+              <button type="submit" class="btn btn-outline-danger mx-1">
+                <i class="far fa-heart"></i>
+              </button>
+            </form>
+            {% else %}
+            <form
+              method="POST"
+              action="{{url_for('crud_entry', id=post.id, action='unlike')}}"
+            >
+              <button type="submit" class="btn btn-outline-danger mx-1">
+                <i class="fas fa-heart"></i>
+              </button>
+            </form>
+            {% endif %}
+          </div>
+
+          <div class="d-flex">
+            {% if current_user.is_authenticated %} {% if post.author ==
+            current_user.username %}
+            <form
+              action="{{url_for('crud_entry', id=post.id, action='edit')}}"
+              method="POST"
+            >
+              <button type="submit" class="btn btn-sm btn-warning mx-1">
+                Edit
+              </button>
+            </form>
+            <form
+              action="{{url_for('crud_entry', id=post.id, action='delete')}}"
+              method="POST"
+            >
+              <button type="submit" class="btn btn-sm btn-danger mx-1">
+                Delete
+              </button>
+            </form>
+            {% endif %}
           </div>
         </div>
-      </form>
-    {% endif %}
-    </div>
-    {% if comments%}
-    {% for comment in comments %}
-    <div class="container">
-        <div class="card media mb-3">
-            <div class="media-body card-body">
-              <div class="lead"><i class="fas fa-user"></i> {{comment.author}}</div>
-                <small class="text-muted media-text ml-5">{{moment(comment.created).fromNow()}}</small>
-                <p class="media-text ml-5">{{comment.content}}</p>
-              {% if current_user.is_authenticated %}
-              {% if comment.author == current_user.username %}
-                <form action="{{url_for('crud_entry', id=post.id, action='deletecomment')}}" method="POST">
-                  <button type="submit" value="{{comment.id}}" name="commentid" class="btn btn-sm btn-danger">Delete</button>
-                </form>
-                {% endif %}
-                {% endif %}
+        <hr />
+        <form
+          class="pt-5"
+          action="{{url_for('crud_entry', id=post.id, action='postcomment')}}"
+          method="POST"
+        >
+          <div class="row">
+            <div class="col">
+              <input
+                type="text"
+                autocomplete="off"
+                name="commentcontent"
+                class="form-control"
+                placeholder="Write a comment"
+              />
             </div>
+            <div>
+              <button class="btn btn-primary">Submit</button>
+            </div>
+          </div>
+        </form>
+        {% endif %}
+      </div>
+      {% if comments%} {% for comment in comments %}
+      <div class="container">
+        <div class="card media mb-3">
+          <div class="media-body card-body">
+            <div class="lead">
+              <i class="fas fa-user"></i> {{comment.author}}
+            </div>
+            <small class="text-muted media-text ml-5"
+              >{{moment(comment.created).fromNow()}}</small
+            >
+            <p class="media-text ml-5">{{comment.content}}</p>
+            {% if current_user.is_authenticated %} {% if comment.author ==
+            current_user.username %}
+            <form
+              action="{{url_for('crud_entry', id=post.id, action='deletecomment')}}"
+              method="POST"
+            >
+              <button
+                type="submit"
+                value="{{comment.id}}"
+                name="commentid"
+                class="btn btn-sm btn-danger"
+              >
+                Delete
+              </button>
+            </form>
+            {% endif %} {% endif %}
+          </div>
         </div>
+      </div>
+      {% endfor %} {% endif %}
     </div>
-    {% endfor %}
-    {% endif %}
   </div>
-</div>
 </div>
 
 {% include "/footer.html" %}
