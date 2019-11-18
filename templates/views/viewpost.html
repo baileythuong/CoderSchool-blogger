@@ -24,7 +24,7 @@
         <a class="display-4">{{ post.title }}</a>
         <p class="lead"><i class="fas fa-user"></i> {{ post.user.username }}</p>
         <p class="text-muted">
-          Total views: {{post.view_count}} <i class="far fa-eye"></i>
+          Total views: {{post.comments|length}} <i class="far fa-eye"></i>
         </p>
         <small class="text-muted">{{moment(post.created).fromNow()}}</small>
         <p class="card-text">{{ post.content }}</p>
@@ -104,7 +104,7 @@
         <div class="card media mb-3">
           <div class="media-body card-body">
             <div class="lead">
-              <i class="fas fa-user"></i> {{comment.author}}
+              <i class="fas fa-user"></i> {{comment.user.username}}
             </div>
             <small class="text-muted media-text ml-5"
               >{{moment(comment.created).fromNow()}}</small

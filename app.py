@@ -31,6 +31,7 @@ class User(UserMixin, db.Model):
     # Posts relationship
     posts = db.relationship('Blog', backref = "user", lazy = True)
     likes_posts = db.relationship('Blog', secondary = "likes",backref = "likes", lazy = True)
+    comments = db.relationship('Comment', backref="user", lazy=True)
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -47,13 +48,13 @@ class Blog(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
     view_count = db.Column(db.Integer, default=0)
-    # comments = db.relationship('Comment', backref = "comment", lazy = True)
+    comments = db.relationship('Comment', backref = "comt", lazy = True)
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String, nullable=False)
-    post_id = db.Column(db.Integer, nullable=False)
-    author = db.Column(db.String(20), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('blogs.id'), nullable=False)
+    user_id = db.Column(db.String, db.ForeignKey('users.id'))
     created = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
 
 likes = db.Table('likes',
@@ -104,9 +105,6 @@ def new_post():
 @app.route('/')
 def post():
     posts = Blog.query.all()
-    for post in posts:
-        post.comments = Comment.query.filter_by(post_id = post.id).all()
-        print("comments:", len(posts[0].comments))
     return render_template("views/post.html", posts=posts)
 
 @app.route('/post/<id>', methods=['GET', 'POST'])
@@ -125,8 +123,9 @@ def crud_entry(id):
             comment = Comment()
             comment.content = request.form["commentcontent"]
             comment.post_id = id
-            comment.author = current_user.username
-            db.session.add(comment)
+            post.comments.append(comment)
+            current_user.comments.append(comment)
+            db.session.add(post)
             db.session.commit()
             # return render_template('./views/viewpost.html', comments=comments, post=post)
             return redirect(url_for("crud_entry", comments=comments, id=id))
@@ -162,9 +161,6 @@ def crud_entry(id):
 @app.route("/most-recent")
 def most_recent():
     posts = Blog.query.order_by(Blog.created.desc()).all()
-    for post in posts:
-        post.comments = Comment.query.filter_by(post_id = post.id).all()
-        print("comments:", len(posts[0].comments))
     return render_template("views/post.html", posts=posts)
 
 @app.route("/logout")
