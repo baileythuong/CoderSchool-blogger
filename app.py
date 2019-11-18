@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, logout_user, login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -129,6 +129,14 @@ def crud_entry(id):
             return "There is no such post, please try again."
     return render_template("views/viewpost.html", post=post, comments=comments)
     return "You don't have permission to do that."
+
+@app.route("/most-recent")
+def most_recent():
+    posts = Blog.query.order_by(Blog.created.desc()).all()
+    for post in posts:
+        post.comments = Comment.query.filter_by(post_id = post.id).all()
+        print("comments:", len(posts[0].comments))
+    return render_template("views/post.html", posts=posts)
 
 @app.route("/logout")
 @login_required
