@@ -1,0 +1,70 @@
+{% include "/navbar.html" %}
+
+<div class="container pt-5">
+  <div class="pt-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+    {% if messages %} {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible mt-2" role="alert">
+      <button
+        type="button"
+        class="close"
+        data-dismiss="alert"
+        aria-label="Close"
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <!-- <strong>Title</strong> -->
+      {{ message }}
+    </div>
+    {% endfor %} {% endif %} {% endwith %} {% for post in posts %}
+    <div class="container card mb-4">
+      <div class="card-body">
+        <div class="container d-flex justify-content-between">
+          <a href="/post/{{post.id}}" class="display-4 text-dark"
+            >{{ post.title }}</a
+          >
+          <div class="btn-group">
+            <button
+              type="button"
+              class="btn btn-link dropdown-toggle"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            ></button>
+            <div class="dropdown-menu">
+              <form
+                action="{{url_for('crud_entry', id=post.id, action='edit')}}"
+                method="POST"
+              >
+                <button type="submit" class="dropdown-item">
+                  Edit
+                </button>
+              </form>
+              <button class="dropdown-item">Delete</button>
+              <div class="dropdown-divider"></div>
+              <form
+                action="{{url_for('crud_entry', id=post.id, action='report')}}"
+                method="POST"
+              >
+                <button type="submit" class="dropdown-item">
+                  Report
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <p class="lead"><i class="fas fa-user"></i> {{ post.user.username }}</p>
+        <small class="text-muted">{{moment(post.created).fromNow()}}</small>
+        <p class="card-text">{{ post.content }}</p>
+        <a href="/post/{{post.id}}" class="card-text text-muted"
+          >{{ post.comments | length}} comments || {{post.view_count}}
+          <i class="far fa-eye"></i
+        ></a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% include "/footer.html" %}
