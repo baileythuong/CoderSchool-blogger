@@ -41,7 +41,7 @@
     <form class="pt-5" action="{{url_for('crud_entry', id=post.id, action='postcomment')}}" method="POST">
         <div class="row">
           <div class="col">
-            <input type="text" name="commentcontent" class="form-control" placeholder="Write a comment">
+            <input type="text" autocomplete="off" name="commentcontent" class="form-control" placeholder="Write a comment">
           </div>
           <div>
             <button class="btn btn-primary">Submit</button>
