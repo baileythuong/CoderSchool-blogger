@@ -4,9 +4,12 @@ from flask_login import UserMixin, LoginManager, logout_user, login_required, lo
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_moment import Moment
 from flask_migrate import Migrate
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('PSQL') or "sqlite:///db.db"
 app.secret_key = "This is my very secret key!"
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
@@ -15,6 +18,7 @@ moment = Moment(app)
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login"
 
 # Migrate flask
 migrate = Migrate(app, db)
@@ -53,8 +57,8 @@ class Blog(db.Model):
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.String, nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('blogs.id'), nullable=False)
-    user_id = db.Column(db.String, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('blogs.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     created = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
 
 likes = db.Table('likes',
@@ -108,6 +112,7 @@ def post():
     return render_template("views/post.html", posts=posts)
 
 @app.route('/post/<id>', methods=['GET', 'POST'])
+# @login_required
 def crud_entry(id):
     print("id", id)
     action = request.args.get('action')

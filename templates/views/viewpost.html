@@ -21,42 +21,43 @@
 
     <div class="container card mb-4">
       <div class="card-body">
+        <div class="container d-flex justify-content-around">
+          <p><i class="fas fa-user"></i> {{ post.user.username }}</p>
+          <p class="text-dark">
+            {{ post.comments | length}} <i class="fas fa-comment"></i>
+          </p>
+          <p class="text-dark">
+            {{post.view_count}} <i class="far fa-eye"></i>
+          </p>
+          <p class="text-dark">
+            <i class="fas fa-clock"></i> {{moment(post.created, "DDMMYYYY").fromNow()}}
+          </p>
+        </div>
         <a class="display-4">{{ post.title }}</a>
-        <p class="lead"><i class="fas fa-user"></i> {{ post.user.username }}</p>
-        <p class="text-muted">
-          Total views: {{post.comments|length}} <i class="far fa-eye"></i>
-        </p>
-        <small class="text-muted">{{moment(post.created).fromNow()}}</small>
-        <p class="card-text">{{ post.content }}</p>
+        <p class="lead card-text">{{ post.content }}</p>
 
-        <div
-          class="container d-flex justify-content-between pb-3 custom-button"
-        >
-          <div>
-            {% if not post in current_user.likes_posts %}
-            <form
-              method="POST"
-              action="{{url_for('crud_entry', id=post.id, action='like')}}"
-            >
-              <button type="submit" class="btn btn-outline-danger mx-1">
-                <i class="far fa-heart"></i>
-              </button>
-            </form>
-            {% else %}
-            <form
-              method="POST"
-              action="{{url_for('crud_entry', id=post.id, action='unlike')}}"
-            >
-              <button type="submit" class="btn btn-outline-danger mx-1">
-                <i class="fas fa-heart"></i>
-              </button>
-            </form>
-            {% endif %}
-          </div>
-
-          <div class="d-flex">
             {% if current_user.is_authenticated %} {% if post.author ==
             current_user.username %}
+            <div class="container d-flex justify-content-end">
+                {% if not post in current_user.likes_posts %}
+                <form
+                  method="POST"
+                  action="{{url_for('crud_entry', id=post.id, action='like')}}"
+                >
+                  <button type="submit" class="btn btn-sm btn-outline-danger mx-1">
+                    <i class="far fa-heart"></i>
+                  </button>
+                </form>
+                {% else %}
+                <form
+                  method="POST"
+                  action="{{url_for('crud_entry', id=post.id, action='unlike')}}"
+                >
+                  <button type="submit" class="btn btn-sm btn-outline-danger mx-1">
+                    <i class="fas fa-heart"></i>
+                  </button>
+                </form>
+                {% endif %}
             <form
               action="{{url_for('crud_entry', id=post.id, action='edit')}}"
               method="POST"
@@ -73,27 +74,26 @@
                 Delete
               </button>
             </form>
-            {% endif %}
           </div>
-        </div>
+            {% endif %}
         <hr />
         <form
           class="pt-5"
           action="{{url_for('crud_entry', id=post.id, action='postcomment')}}"
           method="POST"
         >
-          <div class="row">
+          <div class="container row">
             <div class="col">
               <input
                 type="text"
                 autocomplete="off"
                 name="commentcontent"
-                class="form-control"
+                class="form-control form-control-lg"
                 placeholder="Write a comment"
               />
             </div>
             <div>
-              <button class="btn btn-primary">Submit</button>
+              <button class="btn btn-lg btn-dark">Submit</button>
             </div>
           </div>
         </form>
@@ -101,17 +101,18 @@
       </div>
       {% if comments%} {% for comment in comments %}
       <div class="container">
-        <div class="card media mb-3">
-          <div class="media-body card-body">
+        <div class="card mb-3">
+          <div class="card-body">
             <div class="lead">
               <i class="fas fa-user"></i> {{comment.user.username}}
             </div>
             <small class="text-muted media-text ml-5"
-              >{{moment(comment.created).fromNow()}}</small
+              ><i class="fas fa-clock"></i> {{moment(comment.created, "DDMMYYYY").fromNow()}}</small
             >
             <p class="media-text ml-5">{{comment.content}}</p>
-            {% if current_user.is_authenticated %} {% if comment.author ==
+            {% if current_user.is_authenticated %} {% if comment.user.username ==
             current_user.username %}
+            <div class="container d-flex justify-content-end">
             <form
               action="{{url_for('crud_entry', id=post.id, action='deletecomment')}}"
               method="POST"
@@ -125,8 +126,9 @@
                 Delete
               </button>
             </form>
-            {% endif %} {% endif %}
           </div>
+          </div>
+          {% endif %} {% endif %}
         </div>
       </div>
       {% endfor %} {% endif %}
