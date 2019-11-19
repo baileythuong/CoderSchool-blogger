@@ -9,7 +9,7 @@ load_dotenv()
 import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('LOCAL_PSQL') or os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('PSQL') or os.environ.get('DATABASE_URL')
 app.secret_key = "This is my very secret key!"
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
